@@ -1,0 +1,44 @@
+---
+version: '3.4'
+services:
+  weaviate:
+    command:
+    - --host
+    - 0.0.0.0
+    - --port
+    - '8080'
+    - --scheme
+    - http
+    image: semitechnologies/weaviate:1.19.0
+    ports:
+    - 8080:8080
+    restart: on-failure:0
+    environment:
+      CLIP_INFERENCE_API: 'http://multi2vec-clip:8080'
+      QNA_INFERENCE_API: 'http://qna-transformers:8080'
+      SUM_INFERENCE_API: 'http://sum-transformers:8080'
+      SPELLCHECK_INFERENCE_API: 'http://text-spellcheck:8080'
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
+      PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
+      DEFAULT_VECTORIZER_MODULE: 'multi2vec-clip'
+      ENABLE_MODULES: 'multi2vec-clip,text-spellcheck,ref2vec-centroid'
+      CLUSTER_HOSTNAME: 'node1'
+    volumes:
+      - weaviate:/var/lib/weaviate
+  multi2vec-clip:
+    image: semitechnologies/multi2vec-clip:sentence-transformers-clip-ViT-B-32
+    environment:
+      ENABLE_CUDA: '1'
+      NVIDIA_VISIBLE_DEVICES: 'all'
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - capabilities: 
+            - 'gpu'
+  text-spellcheck:
+    image: semitechnologies/text-spellcheck-model:pyspellchecker-en
+volumes:
+  weaviate:
+...

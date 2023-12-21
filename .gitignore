@@ -1,0 +1,8 @@
+tmp
+**/tmp
+visual-bert
+thumbnails
+tests
+**/node_modules
+**/.svelte-kit
+**/volumes
